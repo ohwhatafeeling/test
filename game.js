@@ -24,13 +24,16 @@ const config = {
 const game = new Phaser.Game(config);
 
 function preload() {
-
+    this.load.image('tiles', 'assets/Terrain/Terrain (16x16).png');
+    this.load.tilemapTiledJSON('map', 'assets/tilemaps/level1.json');
 }
 
 function create() {
-
+    const map = this.make.tilemap({key: 'map'});
+    const tileset = map.addTilesetImage('test_platformer', 'tiles');
+    const platforms = map.createStaticLayer('Platforms', tileset, 0, 0);
 }
 
 function update() {
-    
+
 }
