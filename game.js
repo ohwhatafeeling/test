@@ -29,6 +29,7 @@ function preload() {
     this.load.spritesheet('maskDudeRun', 'assets/Main Characters/Mask Dude/Run (32x32).png', {frameWidth: 32, frameHeight: 32});
     this.load.spritesheet('maskDudeIdle', 'assets/Main Characters/Mask Dude/Idle (32x32).png', {frameWidth: 32, frameHeight: 32});
     this.load.spritesheet('maskDudeJump', 'assets/Main Characters/Mask Dude/Jump (32x32).png', {frameWidth: 32, frameHeight: 32});
+    this.load.spritesheet('apple', 'assets/Items/Fruits/Apple.png', {frameWidth: 32, frameHeight: 32});
 }
 
 function create() {
@@ -38,7 +39,18 @@ function create() {
 
     platforms.setCollisionByExclusion(-1, true);
 
-    this.player = this.physics.add.sprite(30, 30, 'maskDudeIdle');
+    // this.apple = this.add.sprite(200, 60, 'apple');
+
+    this.apples = this.physics.add.group({
+        allowGravity: false,
+        immovable: true
+    });
+
+    map.getObjectLayer('Apples').objects.forEach((apple) => {
+        const appleSprite = this.apples.create(apple.x, apple.y - 32, 'apple').setOrigin(0);
+    });
+
+    this.player = this.physics.add.sprite(30, 400, 'maskDudeIdle');
 
     this.player.setBounce(0.1);
     this.player.setCollideWorldBounds(true);
@@ -65,8 +77,18 @@ function create() {
         repeat: -1
     });
 
-    this.cursors = this.input.keyboard.createCursorKeys();
+    this.anims.create({
+        key: 'applePlay',
+        frames: this.anims.generateFrameNumbers('apple', {start: 0, end: 16}),
+        frameRate: 20,
+        repeat: -1
+    });
 
+    this.apples.children.iterate(apple => {
+        apple.play('applePlay');
+    });
+
+    this.cursors = this.input.keyboard.createCursorKeys();
 }
 
 function update() {
@@ -90,6 +112,11 @@ function update() {
     if ((this.cursors.space.isDown || this.cursors.up.isDown) && this.player.body.onFloor()) {
         this.player.setVelocityY(-300);
         this.player.play('jump', true);
+    }
+    if (this.player.body.velocity.x > 0) {
+        this.player.setFlipX(false);
+    } else if (this.player.body.velocity.x < 0) {
+        this.player.setFlipX(true);
     }
 
 }
