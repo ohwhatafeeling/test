@@ -151,7 +151,7 @@ function update() {
     // }
 
     if ((((this.player.x + 16) > endX) && ((this.player.x - 16) < endX)) && (((this.player.y + 16) > endY) && ((this.player.y - 16) < endY))) {
-        scoreText.setText('game over');
+        scoreText.setText('Game over.\nYou scored: ' + score);
     }
 
 }
