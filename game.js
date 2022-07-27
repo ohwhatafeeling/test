@@ -22,6 +22,13 @@ const config = {
 };
 
 const game = new Phaser.Game(config);
+var score = 0;
+var scoreText;
+
+var startX;
+var startY;
+var endX;
+var endY;
 
 function preload() {
     this.load.image('tiles', 'assets/Terrain/Terrain (16x16).png');
@@ -39,9 +46,14 @@ function create() {
 
     platforms.setCollisionByExclusion(-1, true);
 
-    // this.apple = this.add.sprite(200, 60, 'apple');
+    scoreText = this.add.text(16, 16, 'score: 0', {fontSize: '32px', fill: '#fff'});
 
     this.apples = this.physics.add.group({
+        allowGravity: false,
+        immovable: true
+    });
+
+    this.points = this.physics.add.group({
         allowGravity: false,
         immovable: true
     });
@@ -50,7 +62,20 @@ function create() {
         const appleSprite = this.apples.create(apple.x, apple.y - 32, 'apple').setOrigin(0);
     });
 
-    this.player = this.physics.add.sprite(30, 400, 'maskDudeIdle');
+    // map.getObjectLayer('StartEnd').objects.Start.x, map.getObjectLayer('StartEnd').objects.Start.y
+
+    map.getObjectLayer('StartEnd').objects.forEach((object) => {
+        if (object.name == 'Start') {
+            startX = object.x;
+            startY = object.y;
+        }
+        if (object.name == 'End') {
+            endX = object.x;
+            endY = object.y;
+        }
+    })
+
+    this.player = this.physics.add.sprite(startX, startY, 'maskDudeIdle');
 
     this.player.setBounce(0.1);
     this.player.setCollideWorldBounds(true);
@@ -89,6 +114,9 @@ function create() {
     });
 
     this.cursors = this.input.keyboard.createCursorKeys();
+
+    this.physics.add.overlap(this.player, this.apples, collectApple, null, this);
+
 }
 
 function update() {
@@ -118,5 +146,18 @@ function update() {
     } else if (this.player.body.velocity.x < 0) {
         this.player.setFlipX(true);
     }
+    // if ((endX == this.player.x) && (endY == this.player.y)) {
+    //     scoreText.setText('game over');
+    // }
 
+    if ((((this.player.x + 16) > endX) && ((this.player.x - 16) < endX)) && (((this.player.y + 16) > endY) && ((this.player.y - 16) < endY))) {
+        scoreText.setText('game over');
+    }
+
+}
+
+function collectApple(player, apple) {
+    apple.disableBody(true, true);
+    score += 10;
+    scoreText.setText('score: ' + score);
 }
